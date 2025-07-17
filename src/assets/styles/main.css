@@ -1,0 +1,13 @@
+@unocss all;
+
+.layout1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr))
+}
+
+.layout4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+}
+
+.layout6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+        xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+        xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+        xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+        xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+    <Identity Name="LiFeng.aiPlayer"
+              ProcessorArchitecture="x64"
+              Publisher='CN=F81ED816-8591-4CF6-99BB-17F938D47839'
+              Version="1.0.0.0"/>
+    <Properties>
+        <DisplayName>aiPlayer</DisplayName>
+        <PublisherDisplayName>LiFeng</PublisherDisplayName>
+        <Description>aiPlayer, You can watch multiple movies at the same time in the same window</Description>
+        <Logo>assets\StoreLogo.png</Logo>
+    </Properties>
+    <Resources>
+        <Resource Language="en-US"/>
+    </Resources>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0"/>
+    </Dependencies>
+    <Capabilities>
+        <rescap:Capability Name="runFullTrust"/>
+        <Capability Name="broadFileSystemAccess" />
+    </Capabilities>
+    <Applications>
+        <Application Id="LiFeng.aiPlayer" Executable="app\aiPlayer.exe" EntryPoint="Windows.FullTrustApplication">
+            <uap:VisualElements
+                    BackgroundColor="#464646"
+                    DisplayName="aiPlayer"
+                    Square150x150Logo="assets\Square150x150Logo.png"
+                    Square44x44Logo="assets\Square44x44Logo.png"
+                    Description="aiPlayer, You can watch multiple movies at the same time in the same window">
+
+                <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" Square310x310Logo="assets\LargeTile.png"
+                                 Square71x71Logo="assets\SmallTile.png"/>
+                <uap:SplashScreen Image="assets\SplashScreen.png"/>
+            </uap:VisualElements>
+            <Extensions>
+                <desktop7:Extension
+                        xmlns:desktop7="http://schemas.microsoft.com/appx/manifest/desktop/windows10/7"
+                        xmlns:desktop10="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+                        Category="windows.shortcut"
+                        Executable="app\aiPlayer.exe"
+                        EntryPoint="Windows.FullTrustApplication"
+                        desktop7:Scope="user"
+                        desktop7:CompatMode="modern">
+
+                    <desktop7:Shortcut
+                            File="$$(Desktop)\aiPlayer.lnk"
+                            Icon="assets\Shortcut256x256.png"
+                            PinToStartMenu="true"
+                            ExcludeFromShowInNewInstall="false"
+                            Description="aiPlayer, Play multiple videos in the same window"/>
+
+                </desktop7:Extension>
+            </Extensions>
+        </Application>
+    </Applications>
+</Package>

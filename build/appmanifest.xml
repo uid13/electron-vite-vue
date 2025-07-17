@@ -1,0 +1,12 @@
+<desktop7:Extension
+        xmlns:desktop7="http://schemas.microsoft.com/appx/manifest/desktop/windows10/7"
+        xmlns:desktop10="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+        Category="windows.shortcut">
+
+    <desktop7:Shortcut
+
+            File="$$(Desktop)\aiPlayer.lnk"
+            Icon="$$(Package)\app\resources\icon.ico"
+            Description="aiPlayer, Play multiple videos in the same window"/>
+
+</desktop7:Extension>

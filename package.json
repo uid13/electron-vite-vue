@@ -1,0 +1,66 @@
+{
+  "name": "ai-player",
+  "version": "1.0.0",
+  "main": "dist-electron/main/index.js",
+  "description": "aiPlayer, A video player with grid layout.",
+  "author": "Lifeng <530707161@qq.com>",
+  "license": "MIT",
+  "private": true,
+  "keywords": [
+    "aiPlayer",
+    "播放器"
+  ],
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:3344/"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "pack-w-dir": "electron-builder -w=dir",
+    "pack-w-nsis": "electron-builder -w=nsis",
+    "pack-w-7z": "electron-builder -w=7z",
+    "pack-w-appx": "electron-builder -w=appx",
+    "preview": "vite preview",
+    "preview-electron": "electron ."
+  },
+  "_moduleAliases": {
+    "electron": "node_modules/@chiflix/electron"
+  },
+  "dependencies": {
+    "@vueuse/core": "^13.5.0",
+    "element-plus": "^2.10.2",
+    "jquery": "^3.7.1",
+    "video.js": "^7.21.7",
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@chiflix/electron": "^7.3.3",
+    "@iconify/json": "^2.2.354",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@types/jquery": "^3.5.32",
+    "@types/module-alias": "^2.0.4",
+    "@types/node": "^24.0.10",
+    "@types/video.js": "^7.3.58",
+    "@unocss/preset-attributify": "^66.2.3",
+    "@unocss/preset-icons": "^66.3.2",
+    "@unocss/preset-uno": "^66.2.3",
+    "@unocss/vite": "^66.2.3",
+    "@vitejs/plugin-legacy": "^7.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/tsconfig": "^0.7.0",
+    "electron-builder": "^26.0.12",
+    "module-alias": "^2.2.3",
+    "typescript": "^5.8.3",
+    "unocss": "^66.2.3",
+    "unplugin-auto-import": "^19.3.0",
+    "unplugin-icons": "^22.1.0",
+    "unplugin-vue-components": "^28.8.0",
+    "vite": "^7.0.0",
+    "vite-plugin-electron": "^0.28.4",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vue-tsc": "^2.0.6"
+  }
+}

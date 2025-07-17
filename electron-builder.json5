@@ -1,0 +1,63 @@
+/**
+ * @see https://www.electron.build/configuration/configuration
+ * @see https://github.com/electron-userland/electron-builder/blob/v26.0.12/packages/app-builder-lib/scheme.json
+ * @seehttps://github.com/electron-userland/electron-builder/blob/v22.9.1/packages/app-builder-lib/scheme.json
+ */
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/refs/tags/v26.0.12/packages/app-builder-lib/scheme.json",
+  "appId": "aiPlayer",
+  "copyright": "Copyright © 2025 LiFeng",
+  "asar": true,
+  "electronVersion": "7.3.3",
+  "electronDist": "node_modules/@chiflix/electron/dist",
+  "electronDownload": {
+//    "mirror": "https://npmmirror.com/mirrors/electron/",
+    "mirror": "https://github.com/chiflix/electron/releases/download/v"
+  },
+  "productName": "aiPlayer",
+  "directories": {
+    "output": "release/${version}"
+  },
+  "files": [
+    "dist",
+    "dist-electron"
+  ],
+  "win": {
+    "defaultArch": "x64",
+    "electronLanguages": ["en-US", "zh-CN"],
+    "signtoolOptions": {
+      "certificateFile": "./F81ED816-8591-4CF6-99BB-17F938D47839.pfx",
+      "signingHashAlgorithms": ["sha256"],
+      "rfc3161TimeStampServer": "http://timestamp.acs.microsoft.com"
+    },
+    "target": [
+      {"target": "nsis", "arch": ["x64"]},
+      {"target": "appx", "arch": ["x64"]}
+    ],
+    "artifactName": "${productName}-Windows-${version}-${arch}.${ext}",
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico",
+        "filter": ["**/*.ico"]
+      }
+    ]
+  },
+  "appx": {
+    "identityName": "LiFeng.aiPlayer",
+    "publisher": "CN=F81ED816-8591-4CF6-99BB-17F938D47839",
+    "publisherDisplayName": "LiFeng",
+    "showNameOnTiles": true
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "installerIcon": "./build/icons/favicon256.ico",
+    "uninstallerIcon": "./build/icons/favicon256.ico",
+    "installerHeaderIcon": "./build/icons/favicon256.ico",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "aiPlayer"
+  }
+}
