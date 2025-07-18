@@ -11,7 +11,7 @@
   "electronVersion": "7.3.3",
   "electronDist": "node_modules/@chiflix/electron/dist",
   "electronDownload": {
-//    "mirror": "https://npmmirror.com/mirrors/electron/",
+    //    "mirror": "https://npmmirror.com/mirrors/electron/",
     "mirror": "https://github.com/chiflix/electron/releases/download/v"
   },
   "productName": "aiPlayer",
@@ -24,22 +24,39 @@
   ],
   "win": {
     "defaultArch": "x64",
-    "electronLanguages": ["en-US", "zh-CN"],
+    "electronLanguages": [
+      "en-US",
+      "zh-CN"
+    ],
     "signtoolOptions": {
       "certificateFile": "./F81ED816-8591-4CF6-99BB-17F938D47839.pfx",
-      "signingHashAlgorithms": ["sha256"],
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
       "rfc3161TimeStampServer": "http://timestamp.acs.microsoft.com"
     },
     "target": [
-      {"target": "nsis", "arch": ["x64"]},
-      {"target": "appx", "arch": ["x64"]}
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      {
+        "target": "appx",
+        "arch": [
+          "x64"
+        ]
+      }
     ],
     "artifactName": "${productName}-Windows-${version}-${arch}.${ext}",
     "extraResources": [
       {
         "from": "build/icon.ico",
         "to": "icon.ico",
-        "filter": ["**/*.ico"]
+        "filter": [
+          "**/*.ico"
+        ]
       }
     ]
   },

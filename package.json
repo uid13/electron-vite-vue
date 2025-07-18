@@ -24,10 +24,8 @@
     "pack-w-7z": "electron-builder -w=7z",
     "pack-w-appx": "electron-builder -w=appx",
     "preview": "vite preview",
-    "preview-electron": "electron ."
-  },
-  "_moduleAliases": {
-    "electron": "node_modules/@chiflix/electron"
+    "preview-electron": "electron .",
+    "electron-vite": "electron-vite preview"
   },
   "dependencies": {
     "@vueuse/core": "^13.5.0",
@@ -41,7 +39,6 @@
     "@iconify/json": "^2.2.354",
     "@rollup/plugin-replace": "^6.0.2",
     "@types/jquery": "^3.5.32",
-    "@types/module-alias": "^2.0.4",
     "@types/node": "^24.0.10",
     "@types/video.js": "^7.3.58",
     "@unocss/preset-attributify": "^66.2.3",
@@ -52,7 +49,6 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "electron-builder": "^26.0.12",
-    "module-alias": "^2.2.3",
     "typescript": "^5.8.3",
     "unocss": "^66.2.3",
     "unplugin-auto-import": "^19.3.0",
