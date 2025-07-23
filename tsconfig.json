@@ -21,7 +21,6 @@
       "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
       "@public/*": ["public/*"],
-      "electron": ["node_modules/@chiflix/electron"]
     },
     "types": ["unplugin-icons/types/vue"]
   },

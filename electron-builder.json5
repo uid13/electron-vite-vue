@@ -8,11 +8,8 @@
   "appId": "aiPlayer",
   "copyright": "Copyright © 2025 LiFeng",
   "asar": true,
-  "electronVersion": "7.3.3",
-  "electronDist": "node_modules/@chiflix/electron/dist",
   "electronDownload": {
-    //    "mirror": "https://npmmirror.com/mirrors/electron/",
-    "mirror": "https://github.com/chiflix/electron/releases/download/v"
+    "mirror": "https://npmmirror.com/mirrors/electron/",
   },
   "productName": "aiPlayer",
   "directories": {

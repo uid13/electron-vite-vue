@@ -8,4 +8,4 @@ import VideoPlayer from '@/VideoPlayer.vue';
 
 const app = createApp(VideoPlayer);
 app.use(ElementPlus);
-app.mount('#app');
+app.mount('#app')
