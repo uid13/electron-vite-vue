@@ -113,7 +113,7 @@ const openFilePicker = (slot: VideoSlot) => {
   resetVideoSlot(slot);
   const input = document.createElement('input');
   input.type = 'file';
-  // input.accept = 'video/*';
+  input.accept = 'video/*';
   input.addEventListener('change', (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length) {
@@ -125,10 +125,10 @@ const openFilePicker = (slot: VideoSlot) => {
 
 // 处理选择的文件
 const handleFileSelect = (slot: VideoSlot, file: File) => {
-  // if (!file.type.startsWith('video/')) {
-  //   ElMessage.error('Please select a valid video file！');
-  //   return;
-  // }
+  if (!file.type.startsWith('video/')) {
+    ElMessage.error('Please select a valid video file！');
+    return;
+  }
 
   const videoContainer = $(`[data-id="${slot.id}"] .video-container`);
   const title = $(`[data-id="${slot.id}"] .video-title`);
@@ -259,7 +259,34 @@ useEventListener(window, 'keydown', (event) => {
   }
 })
 
+const testVideo = () => {
+// 1. 准备几个常见的“容器+编解码”组合
+  const tests = [
+    'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+    'video/webm; codecs="vp9, opus"',
+    'video/x-matroska; codecs="vp9, opus"',
+    'video/x-msvideo; codecs="mpeg4"',
+    'application/vnd.rn-realmedia; codecs="rv40"'
+  ]
+
+// 2. HTMLMediaElement.canPlayType() 方式
+  const video66 = document.createElement('video')
+  console.log('--- canPlayType 测试 ---')
+  tests.forEach(t => {
+    console.log(t, '→', video66.canPlayType(t) || '""')
+  })
+
+// 3. MediaSource.isTypeSupported() 方式
+  if ('MediaSource' in window) {
+    console.log('--- MediaSource.isTypeSupported 测试 ---')
+    tests.forEach(t => {
+      console.log(t, '→', MediaSource.isTypeSupported(t))
+    })
+  }
+};
+
 onMounted(() => {
   initializeVideoSlots(Number(selectedLayout.value));
+  testVideo();
 });
 </script>

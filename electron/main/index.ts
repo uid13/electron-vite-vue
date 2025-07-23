@@ -2,9 +2,14 @@ import {app, BrowserWindow, globalShortcut, shell, ipcMain} from 'electron'
 import {release} from 'node:os'
 import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
+import {existsSync} from 'node:fs'
 
 globalThis.__filename = fileURLToPath(import.meta.url)
 globalThis.__dirname = dirname(__filename)
+
+// app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+app.commandLine.appendSwitch('--enable-features', 'OverlayScrollbar');
+app.commandLine.appendSwitch('enable-overlay-scrollbar')
 
 // The built directory structure
 //
@@ -40,7 +45,7 @@ if (!app.requestSingleInstanceLock()) {
 
 let win: BrowserWindow | null = null
 // Here, you can also use other preload
-const preload = join(__dirname, '../preload/index.js')
+const preload = join(__dirname, '../preload/index.mjs')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 
@@ -48,6 +53,8 @@ async function createWindow() {
     win = new BrowserWindow({
         title: 'Welcome to aiPlayer',
         icon: join(process.env.VITE_PUBLIC, 'icons/favicon32.ico'),
+        // width: 2616, height: 1696,
+        width: 1280, height: 720,
         webPreferences: {
             preload,
             contextIsolation: true,
@@ -59,7 +66,12 @@ async function createWindow() {
             // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
             // contextIsolation: false,
         },
+        center: true,
+        acceptFirstMouse: false,
         autoHideMenuBar: true,
+        maximizable: true,
+        fullscreen: false,
+        kiosk: false
     })
 
     win.setMenu(null)
@@ -67,7 +79,7 @@ async function createWindow() {
     if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
         win.loadURL(url)
         // Open devTool if the app is not packaged
-        win.webContents.openDevTools()
+        // win.webContents.openDevTools()
     } else {
         await win.loadFile(indexHtml)
     }
@@ -77,7 +89,12 @@ async function createWindow() {
         if (win && win.webContents) {
             win.webContents.send("main-process-message", new Date().toLocaleString());
         }
-
+        // 隐藏竖向滚动条
+       //  win.webContents.insertCSS(`
+       //    ::-webkit-scrollbar {
+       //      display: none;
+       //    }
+       // `)
     })
 
     // Make all links open with the browser, not with the application

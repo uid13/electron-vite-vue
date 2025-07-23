@@ -8,6 +8,7 @@
   "private": true,
   "keywords": [
     "aiPlayer",
+    "GridPlayer",
     "播放器"
   ],
   "debug": {
@@ -23,9 +24,7 @@
     "pack-w-nsis": "electron-builder -w=nsis",
     "pack-w-7z": "electron-builder -w=7z",
     "pack-w-appx": "electron-builder -w=appx",
-    "preview": "vite preview",
-    "preview-electron": "electron .",
-    "electron-vite": "electron-vite preview"
+    "preview-electron": "electron ."
   },
   "dependencies": {
     "@vueuse/core": "^13.5.0",
@@ -35,7 +34,6 @@
     "vue": "^3.5.17"
   },
   "devDependencies": {
-    "@chiflix/electron": "^7.3.3",
     "@iconify/json": "^2.2.354",
     "@rollup/plugin-replace": "^6.0.2",
     "@types/jquery": "^3.5.32",
@@ -48,7 +46,10 @@
     "@vitejs/plugin-legacy": "^7.0.0",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
+    "electron": "^36.7.3",
     "electron-builder": "^26.0.12",
+    "fs-extra": "^11.3.0",
+    "module-alias": "^2.2.3",
     "typescript": "^5.8.3",
     "unocss": "^66.2.3",
     "unplugin-auto-import": "^19.3.0",

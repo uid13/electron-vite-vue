@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
-import legacy from '@vitejs/plugin-legacy'
 import electron from 'vite-plugin-electron/simple'
 import pkg from './package.json'
 
@@ -13,7 +12,7 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import {ElementPlusResolver} from 'unplugin-vue-components/resolvers';
 
-import replace from '@rollup/plugin-replace'
+// import fse from 'fs-extra';
 
 const pathTypes = path.resolve(__dirname, 'types');
 
@@ -35,10 +34,6 @@ export default defineConfig(({command}) => {
         plugins: [
             Unocss(),
             vue(),
-            legacy({
-                targets: ['chrome 78'],
-                additionalLegacyPolyfills: ['regenerator-runtime/runtime']
-            }),
             AutoImport({
                 imports: ['vue'],
                 resolvers: [
@@ -71,35 +66,18 @@ export default defineConfig(({command}) => {
                     },
                     vite: {
                         resolve: {
-                            alias: {
-                                electron: path.resolve(__dirname, 'node_modules/@chiflix/electron'),
-                            },
+                            alias: {},
                         },
                         build: {
                             sourcemap,
                             minify: isBuild,
                             outDir: 'dist-electron/main',
-                            lib: {
-                                entry: 'electron/main/index.ts',
-                                formats: ['cjs'],
-                            },
                             rollupOptions: {
                                 // Some third-party Node.js libraries may not be built correctly by Vite, especially `C/C++` addons,
                                 // we can use `external` to exclude them to ensure they work correctly.
                                 // Others need to put them in `dependencies` to ensure they are collected into `app.asar` after the app is built.
                                 // Of course, this is not absolute, just this way is relatively simple. :)
                                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-                                output: {
-                                    entryFileNames: 'index.js',
-                                },
-                                plugins: [
-                                    replace({
-                                        preventAssignment: true,
-                                        values: {
-                                            "node:os": "os", "node:path": "path", "node:url": "url",
-                                        }
-                                    })
-                                ]
                             },
                         },
                     },
@@ -113,14 +91,7 @@ export default defineConfig(({command}) => {
                             sourcemap: sourcemap ? 'inline' : undefined, // #332
                             minify: isBuild,
                             outDir: 'dist-electron/preload',
-                            lib: {
-                                entry: 'electron/preload/index.ts',
-                                formats: ['cjs'],
-                            },
                             rollupOptions: {
-                                output: {
-                                    entryFileNames: 'index.js'
-                                },
                                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
                             },
                         },
@@ -131,6 +102,15 @@ export default defineConfig(({command}) => {
                 // See 👉 https://github.com/electron-vite/vite-plugin-electron-renderer
                 renderer: {},
             }),
+/*            {
+                name: 'copy-ffmpeg',
+                closeBundle() {
+                    const ffmpegSource = path.resolve(__dirname, 'ffmpeg/ffmpeg.dll');
+                    const ffmpegDestination = path.resolve(__dirname, 'dist-electron/ffmpeg.dll');
+                    console.log('Copying ffmpeg.dll from', ffmpegSource, 'to', ffmpegDestination);
+                    fse.copySync(ffmpegSource, ffmpegDestination);
+                }
+            }*/
         ],
         server: process.env.VSCODE_DEBUG && (() => {
             const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
@@ -140,13 +120,5 @@ export default defineConfig(({command}) => {
             }
         })(),
         clearScreen: false,
-        build: {
-            target: 'chrome78',  // 构建输出也降级
-        },
-        optimizeDeps: {
-            esbuildOptions: {
-                target: 'chrome78'  // 依赖预构建降级
-            }
-        }
     }
 })
