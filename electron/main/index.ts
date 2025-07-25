@@ -7,9 +7,10 @@ import {existsSync} from 'node:fs'
 globalThis.__filename = fileURLToPath(import.meta.url)
 globalThis.__dirname = dirname(__filename)
 
-// app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-app.commandLine.appendSwitch('--enable-features', 'OverlayScrollbar');
-app.commandLine.appendSwitch('enable-overlay-scrollbar')
+app.commandLine.appendSwitch('enable-accelerated-video-decode', 'true') // 高版本解码
+app.commandLine.appendSwitch('enable-hevc', 'true') // 高版本解码
+app.commandLine.appendSwitch('--enable-features', 'PlatformHEVCDecoderSupport')  // 低版本解码
+app.commandLine.appendSwitch('--enable-features', 'MediaRecorderHEVCSupport') // 低版本编码
 
 // The built directory structure
 //
@@ -109,7 +110,7 @@ async function createWindow() {
     });
     // win.webContents.on('will-navigate', (event, url) => { }) #344
 
-    win.on('focus', () => {
+    /*win.on('focus', () => {
         globalShortcut.register('Shift+F5', () => {
             win.reload()
         })
@@ -127,7 +128,7 @@ async function createWindow() {
         globalShortcut.unregister('Shift+F5')
         globalShortcut.unregister('Ctrl+F')
         globalShortcut.unregister('Shift+Ctrl+I')
-    })
+    })*/
 }
 
 app.whenReady().then(createWindow)

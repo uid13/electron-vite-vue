@@ -8,6 +8,7 @@
   "appId": "aiPlayer",
   "copyright": "Copyright © 2025 LiFeng",
   "asar": true,
+  "electronVersion": "37.2.4",
   "electronDownload": {
     "mirror": "https://npmmirror.com/mirrors/electron/",
   },

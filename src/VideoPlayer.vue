@@ -71,17 +71,23 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, onMounted} from 'vue';
-import videojs from 'video.js';
+import {ref, onMounted, onUnmounted} from 'vue';
+import Player from 'xgplayer';
+import FlvPlugin from 'xgplayer-flv';
+import HlsPlugin from 'xgplayer-hls'
 import $ from 'jquery';
 import {ElMessage} from "element-plus";
+import 'xgplayer/dist/index.min.css';
+import {useEventListener} from '@vueuse/core'
 
-// 定义视频槽位的数据类型
+// 定义视频槽位的数据类型（新增objectUrl存储临时URL）
 interface VideoSlot {
   id: number;
-  player: videojs.Player | null;
+  player: any | null;
   file: File | null;
   title: string;
+  format: string;
+  objectUrl: string | null; // 存储createObjectURL的返回值，用于后续释放
 }
 
 const videoSlots = ref<VideoSlot[]>([]);
@@ -98,35 +104,34 @@ const initializeVideoSlots = (layout: number) => {
       player: null,
       file: null,
       title: ``,
+      format: '',
+      objectUrl: null
     };
     videoSlots.value.push(slotData);
   }
 };
 
-// 改变布局
-const changeLayout = (layout: string) => {
-  initializeVideoSlots(Number(layout));
-};
-
 // 打开文件选择器
+const accept = ['.mp4', '.mkv', '.flv', '.ogg', '.webm', '.mov']
 const openFilePicker = (slot: VideoSlot) => {
   resetVideoSlot(slot);
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'video/*';
-  input.addEventListener('change', (e: Event) => {
+
+  const $input = $('<input>').attr({type: 'file', accept: accept.join(', ')});
+  $input.on('change', (e) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length) {
       handleFileSelect(slot, target.files[0]);
     }
   });
-  input.click();
+  $input.click();
 };
 
 // 处理选择的文件
 const handleFileSelect = (slot: VideoSlot, file: File) => {
-  if (!file.type.startsWith('video/')) {
-    ElMessage.error('Please select a valid video file！');
+  const extName = file.name.toLowerCase().split(".").pop() || '';
+  // xgplayer 自动判断是否支持
+  if (!accept.includes(`.${extName}`)) {
+    ElMessage.error(`Unsupported ${extName} video file.`);
     return;
   }
 
@@ -134,83 +139,109 @@ const handleFileSelect = (slot: VideoSlot, file: File) => {
   const title = $(`[data-id="${slot.id}"] .video-title`);
   videoContainer.html("");
 
-  // 创建视频元素
-  const videoId = `video-${slot.id}-${Date.now()}`;
-  const video = document.createElement('video');
-  video.id = videoId;
-  video.className = 'video-js vjs-default-skin vjs-big-play-centered';
-  video.controls = true;
-  video.preload = 'auto';
-  // 添加样式属性，让视频自适应容器
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.objectFit = 'cover';
+  // 创建播放器容器
+  const containerId = `video-container-${slot.id}-${Date.now()}`;
+  const container = document.createElement('div');
+  container.id = containerId;
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.objectFit = 'cover';
+  videoContainer.append(container);
 
-  const source = document.createElement('source');
-  source.src = URL.createObjectURL(file);
-  source.type = file.type;
-  video.appendChild(source);
-  videoContainer.append(video);
+  // 生成临时URL并存储（用于后续释放）
+  const objectUrl = URL.createObjectURL(file);
 
-  // 使用Video.js初始化播放器
-  const player = videojs(videoId, {
-    controls: true,
+  // 播放器配置
+  const playerConfig: any = {
+    id: containerId,
+    url: objectUrl,
+    width: '100%',
+    height: '100%',
     autoplay: false,
-    preload: 'auto',
+    volume: globalVolume.value,
+    controls: true,
     fluid: true,
-    playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
-      children: [
-        'playToggle',
-        'volumePanel',
-        'currentTimeDisplay',
-        'timeDivider',
-        'durationDisplay',
-        'progressControl',
-        'remainingTimeDisplay',
-        'playbackRateMenuButton',
-        'fullscreenToggle'
-      ]
-    }
-  });
+      show: true,
+      items: ['play', 'volume', 'time', 'progress', 'playbackRate', 'fullscreen']
+    },
+    isLive: false,
+    lang: 'en'
+  };
 
-  // 设置视频源
-  player.src({
-    src: URL.createObjectURL(file),
-    type: file.type
-  });
+  if (FlvPlugin.isSupported() && extName === 'flv') {
+    console.log("Using FlvPlugin for FLV files");
+    playerConfig.plugins = [FlvPlugin];
+  }
+  if (HlsPlugin.isSupported() && extName === 'ts') {
+    console.log("Using HlsPlugin for TS files");
+    playerConfig.plugins = [HlsPlugin];
+  }
 
-  // 设置音量 (8%)
-  player.volume(0.08);
+  // 初始化播放器
+  const player = new Player(playerConfig);
 
-  // 更新标题
-  const fileName = file.name.length > 20 ? file.name.substring(0, 20) + "..." : file.name;
+  // 存储错误监听函数（用于后续移除）
+  const errorHandler = (err: any) => {
+    console.error('Player error:', err);
+    // ElMessage.error(`Play error: ${err.message || 'Unknown error'}`);
+  };
+  player.on('error', errorHandler);
 
-  // 存储播放器引用和文件信息
+  // 更新槽位数据（存储objectUrl和errorHandler）
+  const fileName = file.name.length > 45 ? `${file.name.substring(0, 45)}...` : file.name;
   slot.player = player;
   slot.file = file;
   slot.title = ` ${fileName}`;
-  title.text(slot.title);
+  slot.format = extName;
+  slot.objectUrl = objectUrl;
+  // 存储errorHandler到player实例上，方便后续移除
+  (player as any)._errorHandler = errorHandler;
 
-  player.playbackRate(1);
+  title.text(slot.title);
 };
 
-// 重置视频槽
+// 改变布局
+const changeLayout = (layout: string) => {
+  initializeVideoSlots(Number(layout));
+};
+
+// 重置视频槽位
 const resetVideoSlot = (slot: VideoSlot) => {
   const videoContainer = $(`[data-id="${slot.id}"] .video-container`);
   const title = $(`[data-id="${slot.id}"] .video-title`);
-  if (slot.player) {
-    slot.player.dispose();
-    slot.player = null;
-    slot.file = null;
-  }
-  videoContainer.html('<i class="i-mdi:movie-open w-27 h-27"/>');
 
+  if (slot.player) {
+    // 1. 移除事件监听
+    const errorHandler = (slot.player as any)._errorHandler;
+    if (errorHandler) {
+      slot.player.off('error', errorHandler);
+    }
+    // 2. 销毁播放器实例
+    slot.player.destroy();
+    slot.player = null;
+  }
+
+  // 3. 释放objectUrl
+  if (slot.objectUrl) {
+    URL.revokeObjectURL(slot.objectUrl);
+    slot.objectUrl = null;
+  }
+
+  // 4. 清空DOM和数据
+  videoContainer.html('<i class="i-mdi:movie-open w-27 h-27"/>');
+  slot.file = null;
   slot.title = ``;
+  slot.format = '';
   title.text(slot.title);
 };
 
-// 全部播放/暂停
+// 组件卸载时彻底清理所有资源
+onUnmounted(() => {
+  videoSlots.value.forEach(slot => resetVideoSlot(slot));
+  videoSlots.value = [];
+});
+
 const allPlay = ref<boolean>(true);
 const playAll = () => {
   allPlay.value = !allPlay.value;
@@ -222,34 +253,28 @@ const playAll = () => {
   ElMessage.success(allPlay.value ? 'All videos have been paused' : 'All videos have been played');
 };
 
-// 全部静音
 const allMuted = ref<boolean>(false);
 const muteAll = () => {
   allMuted.value = !allMuted.value;
   videoSlots.value.forEach(slot => {
     if (slot.player) {
-      slot.player.muted(allMuted.value);
+      slot.player.muted = allMuted.value;
     }
   });
   ElMessage.success(allMuted.value ? 'All videos have been muted' : 'All videos have been unmuted');
 };
 
-// 移除所有视频
 const removeAll = () => {
   initializeVideoSlots(Number(selectedLayout.value));
 };
 
-// 设置全局音量
 const setGlobalVolume = () => {
   videoSlots.value.forEach(slot => {
     if (slot.player) {
-      slot.player.volume(globalVolume.value);
+      slot.player.volume = globalVolume.value;
     }
   });
 };
-
-// 处理键盘事件
-import {useEventListener} from '@vueuse/core'
 
 useEventListener(window, 'keydown', (event) => {
   if (event.key === ' ' || event.code === 'Space') {
@@ -257,36 +282,9 @@ useEventListener(window, 'keydown', (event) => {
     playAll();
     event.stopPropagation();
   }
-})
-
-const testVideo = () => {
-// 1. 准备几个常见的“容器+编解码”组合
-  const tests = [
-    'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
-    'video/webm; codecs="vp9, opus"',
-    'video/x-matroska; codecs="vp9, opus"',
-    'video/x-msvideo; codecs="mpeg4"',
-    'application/vnd.rn-realmedia; codecs="rv40"'
-  ]
-
-// 2. HTMLMediaElement.canPlayType() 方式
-  const video66 = document.createElement('video')
-  console.log('--- canPlayType 测试 ---')
-  tests.forEach(t => {
-    console.log(t, '→', video66.canPlayType(t) || '""')
-  })
-
-// 3. MediaSource.isTypeSupported() 方式
-  if ('MediaSource' in window) {
-    console.log('--- MediaSource.isTypeSupported 测试 ---')
-    tests.forEach(t => {
-      console.log(t, '→', MediaSource.isTypeSupported(t))
-    })
-  }
-};
+});
 
 onMounted(() => {
   initializeVideoSlots(Number(selectedLayout.value));
-  testVideo();
 });
 </script>
